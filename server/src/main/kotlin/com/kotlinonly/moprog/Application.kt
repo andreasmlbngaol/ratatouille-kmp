@@ -50,8 +50,12 @@ fun Application.module() {
             metricRoute(appMicrometerRegistry)
             authRoute()
 
+            // Protected Route
             authenticate(AuthNames.JWT_AUTH) {
-
+                // Untuk mengecek token
+                get("/ping-protected") {
+                    call.respond(HttpStatusCode.OK)
+                }
             }
         }
     }
