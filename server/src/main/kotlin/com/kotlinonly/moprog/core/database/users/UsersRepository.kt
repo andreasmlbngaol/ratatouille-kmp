@@ -10,6 +10,7 @@ object UsersRepository {
         Users
             .selectAll()
             .map { it.toUser() }
+            .firstOrNull()
     }
 
     fun save(user: User) = transaction {
