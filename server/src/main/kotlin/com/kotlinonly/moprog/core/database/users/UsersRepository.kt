@@ -9,6 +9,7 @@ object UsersRepository {
     fun findById(id: String) = transaction {
         Users
             .selectAll()
+            .where { Users.id eq id }
             .map { it.toUser() }
             .firstOrNull()
     }
