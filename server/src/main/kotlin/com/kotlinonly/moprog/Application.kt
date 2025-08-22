@@ -1,10 +1,12 @@
 package com.kotlinonly.moprog
 
+import com.kotlinonly.moprog.auth.authRoute
 import com.kotlinonly.moprog.core.config.DatabaseFactory
 import com.kotlinonly.moprog.core.config.EnvConfig
 import com.kotlinonly.moprog.core.config.FirebaseConfig
 import com.kotlinonly.moprog.core.config.JwtConfig
 import com.kotlinonly.moprog.core.controller.metricRoute
+import com.kotlinonly.moprog.core.data.AuthNames
 import com.kotlinonly.moprog.core.plugins.authenticationPlugin
 import com.kotlinonly.moprog.core.plugins.callLoggingPlugin
 import com.kotlinonly.moprog.core.plugins.contentNegotiationPlugin
@@ -14,8 +16,8 @@ import com.kotlinonly.moprog.core.plugins.statusPagesPlugin
 import com.kotlinonly.moprog.core.utils.respondJson
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.config.ApplicationConfig
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -46,6 +48,11 @@ fun Application.module() {
         route("/api") {
             get { call.respondJson(HttpStatusCode.OK, "Allo Woldeu") }
             metricRoute(appMicrometerRegistry)
+            authRoute()
+
+            authenticate(AuthNames.JWT_AUTH) {
+
+            }
         }
     }
 }
