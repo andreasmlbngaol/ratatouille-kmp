@@ -2,6 +2,7 @@ package com.kotlinonly.moprog.core.config
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.kotlinonly.moprog.data.auth.User
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.config.ApplicationConfig
 import java.util.Date
@@ -17,6 +18,20 @@ object JwtConfig {
     fun init(config: ApplicationConfig) {
         secretKey = config.config("ktor.jwt").property("secretKey").getString()
         algorithm = Algorithm.HMAC256(secretKey)
+    }
+
+    fun generateAccessToken(user: User): String {
+        val now = System.currentTimeMillis()
+        return JWT.create()
+            .withClaim("type", "access")
+            .withClaim("sub", user.id)
+            .withClaim("name", user.name)
+            .withClaim("email", user.email)
+            .withClaim("image_url", user.profilePictureUrl)
+            .withClaim("is_email_verified", user.isEmailVerified)
+            .withIssuedAt(Date(now))
+            .withExpiresAt(Date(now + ACCESS_TOKEN_EXPIRATION_DURATION_IN_SECOND * 1000L))
+            .sign(algorithm)
     }
 
     fun generateRefreshToken(userId: String): String {
