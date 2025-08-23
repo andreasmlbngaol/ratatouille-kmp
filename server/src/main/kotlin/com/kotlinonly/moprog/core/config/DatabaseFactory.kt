@@ -12,7 +12,6 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
-import kotlin.text.compareTo
 
 object DatabaseFactory {
     fun init(config: ApplicationConfig) {
@@ -37,8 +36,6 @@ object DatabaseFactory {
 
     private fun runMigrations() {
         transaction {
-            val latestVersion = migrations.maxOf { it.version }
-
             if (!SchemaVersion.exists()) {
                 SchemaUtils.create(SchemaVersion)
                 SchemaVersion.insert { it[version] = 0 }
@@ -49,13 +46,6 @@ object DatabaseFactory {
             var currentVersion = SchemaVersion
                 .selectAll()
                 .single()[SchemaVersion.version]
-
-            if(currentVersion == 0) {
-                println("Running initial migration to version $latestVersion")
-                migrations.first().run(this)
-                SchemaVersion.update { it[version] = latestVersion }
-                return@transaction
-            }
 
             // Jalankan migrasi yang versinya lebih tinggi
             migrations

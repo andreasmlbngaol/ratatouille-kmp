@@ -5,6 +5,7 @@ import com.kotlinonly.moprog.core.config.DatabaseFactory
 import com.kotlinonly.moprog.core.config.EnvConfig
 import com.kotlinonly.moprog.core.config.FirebaseConfig
 import com.kotlinonly.moprog.core.config.JwtConfig
+import com.kotlinonly.moprog.core.config.userId
 import com.kotlinonly.moprog.core.controller.metricRoute
 import com.kotlinonly.moprog.core.data.AuthNames
 import com.kotlinonly.moprog.core.plugins.authenticationPlugin
@@ -14,9 +15,12 @@ import com.kotlinonly.moprog.core.plugins.corsPlugin
 import com.kotlinonly.moprog.core.plugins.micrometerMetricsPlugin
 import com.kotlinonly.moprog.core.plugins.statusPagesPlugin
 import com.kotlinonly.moprog.core.utils.respondJson
+import com.kotlinonly.moprog.recipes.recipeRoute
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
@@ -54,8 +58,13 @@ fun Application.module() {
             authenticate(AuthNames.JWT_AUTH) {
                 // Untuk mengecek token
                 get("/ping-protected") {
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+                    UsersRepository.findById(userId) ?: return@get call.respondJson(HttpStatusCode.Unauthorized, "User not found")
+
                     call.respond(HttpStatusCode.OK)
                 }
+
+                recipeRoute()
             }
         }
     }

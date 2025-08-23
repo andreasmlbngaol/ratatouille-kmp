@@ -18,6 +18,7 @@ fun Application.contentNegotiationPlugin() {
                 isLenient = true
                 ignoreUnknownKeys = true
                 namingStrategy = JsonNamingStrategy.SnakeCase
+                encodeDefaults = true
             },
             contentType = ContentType.Application.Json
         )
