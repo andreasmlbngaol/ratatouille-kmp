@@ -2,6 +2,7 @@ package com.kotlinonly.moprog.recipes
 
 import com.kotlinonly.moprog.core.config.userId
 import com.kotlinonly.moprog.core.database.comments.CommentsRepository
+import com.kotlinonly.moprog.core.database.comments_images.CommentsImagesRepository
 import com.kotlinonly.moprog.core.database.images.ImagesRepository
 import com.kotlinonly.moprog.core.database.ingredients.IngredientsRepository
 import com.kotlinonly.moprog.core.database.ratings.RatingsRepository
@@ -10,7 +11,6 @@ import com.kotlinonly.moprog.core.database.recipes.RecipesRepository
 import com.kotlinonly.moprog.core.database.recipes_images.RecipesImagesRepository
 import com.kotlinonly.moprog.core.database.steps.StepsRepository
 import com.kotlinonly.moprog.core.utils.respondJson
-import com.kotlinonly.moprog.data.comments.CreateCommentRequest
 import com.kotlinonly.moprog.data.ratings.CreateRatingRequest
 import com.kotlinonly.moprog.data.reactions.CreateReactionRequest
 import com.kotlinonly.moprog.data.recipes.CreateRecipeRequest
@@ -29,6 +29,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import java.io.File
+import java.io.FileOutputStream
+import javax.imageio.IIOImage
+import javax.imageio.ImageIO
+import javax.imageio.ImageWriteParam
 
 @Suppress("DEPRECATION")
 fun Route.recipeRoute() {
@@ -95,21 +99,41 @@ fun Route.recipeRoute() {
                 multipart.forEachPart { part ->
                     when (part) {
                         is PartData.FileItem -> {
-                            val originalFileName = part.originalFileName as String
-                            val extension = originalFileName.substring(originalFileName.lastIndexOf("."))
-
-                            val fileName = "image-${System.currentTimeMillis()}$extension"
-
+                            val fileName = "image-${System.currentTimeMillis()}.webp"
                             filePath = "uploads/recipes/$id/$fileName"
                             val file = File(filePath)
                             file.parentFile.mkdirs()
 
+                            // Convert BufferedImage
                             part.streamProvider().use { input ->
-                                file.outputStream().buffered().use { output ->
-                                    input.copyTo(output)
+                                val image = ImageIO.read(input)
+
+                                FileOutputStream(file).use { fos ->
+                                    val writers = ImageIO.getImageWritersByFormatName("webp")
+
+                                    if (!writers.hasNext()) {
+                                        throw RuntimeException("No WebP writer found")
+                                    }
+
+                                    val writer = writers.next()
+                                    val ios = ImageIO.createImageOutputStream(fos)
+                                    writer.output = ios
+
+                                    val param = writer.defaultWriteParam
+                                    if(param.canWriteCompressed()) {
+                                        param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+
+                                        println("Available compression types = ${param.compressionTypes?.joinToString()}")
+                                        param.compressionType = param.compressionTypes[0]
+
+                                        param.compressionQuality = 0.8f // Compress to 80% quality
+                                    }
+
+                                    writer.write(null, IIOImage(image, null, null), param)
+                                    ios.close()
+                                    writer.dispose()
                                 }
                             }
-
                         }
                         else -> {}
                     }
@@ -135,9 +159,64 @@ fun Route.recipeRoute() {
                     if(it) return@post call.respondJson(HttpStatusCode.Forbidden, "You are the author of this recipe")
                 }
 
-                val payload = call.receive<CreateCommentRequest>()
+                val multipart = call.receiveMultipart()
 
-                CommentsRepository.save(recipeId, userId, payload.content)
+                var content: String? = null
+                var imagePath: String? = null
+
+                multipart.forEachPart { part ->
+                    when (part) {
+                        is PartData.FileItem -> {
+                            val fileName = "image-${System.currentTimeMillis()}.webp"
+                            imagePath = "uploads/recipes/$recipeId/comments/$fileName"
+                            val file = File(imagePath)
+                            file.parentFile.mkdirs()
+
+                            // Convert BufferedImage
+                            part.streamProvider().use { input ->
+                                val image = ImageIO.read(input)
+
+                                FileOutputStream(file).use { fos ->
+                                    val writers = ImageIO.getImageWritersByFormatName("webp")
+
+                                    val writer = writers.next()
+                                    val ios = ImageIO.createImageOutputStream(fos)
+                                    writer.output = ios
+
+                                    val param = writer.defaultWriteParam
+                                    if (param.canWriteCompressed()) {
+                                        param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+
+                                        println("Available compression types = ${param.compressionTypes?.joinToString()}")
+                                        param.compressionType = param.compressionTypes[0]
+
+                                        param.compressionQuality = 0.8f // Compress to 80% quality
+                                    }
+
+                                    writer.write(null, IIOImage(image, null, null), param)
+                                    ios.close()
+                                    writer.dispose()
+                                }
+                            }
+                        }
+                        is PartData.FormItem -> {
+                            if (part.name == "content") content = part.value
+                        }
+                        else -> {}
+                    }
+                }
+
+                if(content.isNullOrBlank()) {
+                    return@post call.respondJson(HttpStatusCode.BadRequest, "Content is required")
+                }
+
+                val commentId = CommentsRepository.save(recipeId, userId, content)
+
+                if(imagePath != null) {
+                    val imageId = ImagesRepository.save(imagePath)
+                    CommentsImagesRepository.save(commentId, imageId)
+                }
+
                 call.respond(HttpStatusCode.Created)
             }
 

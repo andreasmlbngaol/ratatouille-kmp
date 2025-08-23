@@ -1,5 +1,6 @@
 package com.kotlinonly.moprog.core.database.recipes_images
 
+import com.kotlinonly.moprog.MY_DOMAIN
 import com.kotlinonly.moprog.core.database.images.Images
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.select
@@ -11,7 +12,7 @@ object RecipesImagesRepository {
         (RecipesImages innerJoin Images)
             .select(Images.url)
             .where { RecipesImages.recipeId eq recipeId }
-            .map { it[Images.url] }
+            .map { "$MY_DOMAIN/${it[Images.url]}" }
     }
 
     fun save(

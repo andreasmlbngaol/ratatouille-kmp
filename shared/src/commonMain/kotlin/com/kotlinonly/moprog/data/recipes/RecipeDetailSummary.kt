@@ -21,7 +21,9 @@ data class RecipeDetailSummary(
     val updatedAt: LocalDateTime = now,
     val rating: AverageRating? = null,
     val reaction: Map<ReactionType, Int>? = null,
+    val totalReactions: Int = 0,
     val comments: List<CommentSummary> = emptyList(),
+    val totalComments: Int = 0,
     val images: List<String> = emptyList(),
     val ingredients: List<Ingredient> = emptyList(),
     val steps: List<String> = emptyList()

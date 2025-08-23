@@ -1,12 +1,13 @@
 package com.kotlinonly.moprog.core.database.comments
 
+import com.kotlinonly.moprog.core.database.comments_images.CommentsImagesRepository
 import com.kotlinonly.moprog.core.database.ratings.RatingsRepository
 import com.kotlinonly.moprog.data.auth.UserSummary
 import com.kotlinonly.moprog.data.comments.CommentSummary
 import org.jetbrains.exposed.v1.core.ResultRow
 
 fun ResultRow.toCommentSummary(): CommentSummary {
-    val id = this[Comments.id].value
+    val commentId = this[Comments.id].value
     val recipeId = this[Comments.recipeId].value
 
     val authorId = this[Comments.userId]
@@ -20,11 +21,14 @@ fun ResultRow.toCommentSummary(): CommentSummary {
 
     val rating = RatingsRepository.findByRecipeIdAndAuthorId(recipeId, author.id)
 
+    val imageUrls = CommentsImagesRepository.findAllByCommentId(commentId)
+
     return CommentSummary(
-        id = id,
+        id = commentId,
         author = author,
         content = this[Comments.content],
         createdAt = this[Comments.createdAt],
-        rating = rating
+        rating = rating,
+        imageUrls = imageUrls
     )
 }

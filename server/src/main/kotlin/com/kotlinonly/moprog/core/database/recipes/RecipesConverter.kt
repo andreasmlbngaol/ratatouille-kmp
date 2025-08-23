@@ -53,7 +53,9 @@ fun ResultRow.toRecipeDetailSummary(): RecipeDetailSummary {
         updatedAt = this[Recipes.updatedAt],
         rating = rating,
         reaction = reactions,
+        totalReactions = reactionList.size,
         comments = comments,
+        totalComments = comments.size,
         images = images,
         ingredients = ingredients,
         steps = steps

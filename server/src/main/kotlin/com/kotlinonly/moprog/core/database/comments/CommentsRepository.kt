@@ -23,5 +23,5 @@ object CommentsRepository {
                 it[Comments.userId] = userId
                 it[Comments.content] = content
             }
-    }
+    }.value
 }

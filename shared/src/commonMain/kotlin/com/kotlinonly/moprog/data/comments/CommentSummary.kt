@@ -11,5 +11,6 @@ data class CommentSummary(
     val author: UserSummary = UserSummary(),
     val content: String = "",
     val createdAt: LocalDateTime = now,
-    val rating: Double? = null
+    val rating: Double? = null,
+    val imageUrls: List<String> = emptyList()
 )
