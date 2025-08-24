@@ -26,7 +26,6 @@ import java.io.File
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
-//const val MY_DOMAIN = "https://moprog.sanalab.live"
 lateinit var MY_DOMAIN: String
 
 fun Application.module() {

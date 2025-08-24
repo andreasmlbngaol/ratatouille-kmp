@@ -1,0 +1,98 @@
+package com.kotlinonly.moprog.recipes
+
+import com.kotlinonly.moprog.auth.config.userId
+import com.kotlinonly.moprog.core.utils.respondJson
+import com.kotlinonly.moprog.data.ratings.CreateRatingRequest
+import com.kotlinonly.moprog.data.recipes.CreateRecipeRequest
+import com.kotlinonly.moprog.data.recipes.RecipeDetailSummary
+import com.kotlinonly.moprog.database.ingredients.IngredientsRepository
+import com.kotlinonly.moprog.database.ratings.RatingsRepository
+import com.kotlinonly.moprog.database.recipes.RecipesRepository
+import com.kotlinonly.moprog.database.steps.StepsRepository
+import io.ktor.http.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+
+@Suppress( "DuplicatedCode")
+fun Route.recipeRoute() {
+    route("/recipes") {
+        // Create a new recipe
+        post {
+            val userId = call.principal<JWTPrincipal>()!!.userId
+            val payload = call.receive<CreateRecipeRequest>()
+
+            val recipeId = RecipesRepository.save(
+                name = payload.name,
+                authorId = userId,
+                estTimeInMinutes = payload.estTimeInMinutes,
+                description = payload.description,
+                isPublic = payload.isPublic
+            ).value
+
+            IngredientsRepository.saveAll(
+                recipeId = recipeId,
+                ingredients = payload.ingredients
+            )
+
+            StepsRepository.saveAll(
+                recipeId = recipeId,
+                steps = payload.steps
+            )
+
+            call.respond(HttpStatusCode.Created)
+        }
+
+        // Get simple response recipes with filters
+        get {
+            TODO()
+        }
+
+        route("/{id}") {
+            // Find recipe by id
+            get {
+                val id = call.parameters["id"]?.toLongOrNull()
+                    ?: return@get call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+
+                val recipe: RecipeDetailSummary = RecipesRepository.findById(id)
+                    ?: return@get call.respondJson(HttpStatusCode.NotFound, "Recipe not found")
+
+                if(!recipe.isPublic) {
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+                    RecipesRepository.isAuthor(id, userId).let {
+                        if(!it) return@get call.respondJson(HttpStatusCode.Forbidden, "You are not the author of this recipe")
+                    }
+                }
+                call.respond(recipe)
+            }
+
+            recipeImageRoute()
+
+            recipeCommentRoute()
+
+            recipeReactionRoute()
+
+            recipeBookmarkRoute()
+
+            // Add reader rating
+            post("/ratings") {
+                val recipeId = call.parameters["id"]?.toLongOrNull()
+                    ?: return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+
+                val userId = call.principal<JWTPrincipal>()!!.userId
+
+                RecipesRepository.isAuthor(recipeId, userId).let {
+                    if(it) return@post call.respondJson(HttpStatusCode.Forbidden, "You are the author of this recipe")
+                }
+
+                val payload = call.receive<CreateRatingRequest>()
+                if(payload.rating !in 1.0..5.0) return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid rating")
+
+                RatingsRepository.save(recipeId, userId, payload.rating)
+                call.respond(HttpStatusCode.Created)
+            }
+        }
+    }
+}
