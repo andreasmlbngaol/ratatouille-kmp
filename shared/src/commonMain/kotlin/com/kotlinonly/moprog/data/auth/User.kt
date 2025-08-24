@@ -8,12 +8,12 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Serializable
 data class User(
-    val id: String = "",
-    val name: String = "",
+    val createdAt: LocalDateTime = now,
     val email: String? = null,
-    val profilePictureUrl: String? = null,
-    val method: AuthMethod = AuthMethod.EMAIL_AND_PASSWORD,
+    val id: String = "",
     val isEmailVerified: Boolean = false,
-    val createdAt: LocalDateTime = now
+    val method: AuthMethod = AuthMethod.EMAIL_AND_PASSWORD,
+    val name: String = "",
+    val profilePictureUrl: String? = null,
 )
 

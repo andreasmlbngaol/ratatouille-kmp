@@ -2,7 +2,7 @@ package com.kotlinonly.moprog.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.kotlinonly.moprog.core.config.JwtConfig
+import com.kotlinonly.moprog.auth.config.JwtConfig
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.data.auth.LoginRequest
 import com.kotlinonly.moprog.data.auth.LoginResponse
@@ -10,6 +10,7 @@ import com.kotlinonly.moprog.data.auth.RefreshTokenRequest
 import com.kotlinonly.moprog.data.auth.RefreshTokenResponse
 import com.kotlinonly.moprog.data.auth.User
 import com.kotlinonly.moprog.data.core.logE
+import com.kotlinonly.moprog.database.users.UsersRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond

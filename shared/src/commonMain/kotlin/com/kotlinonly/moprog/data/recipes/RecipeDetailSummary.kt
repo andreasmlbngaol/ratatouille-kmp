@@ -11,20 +11,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RecipeDetailSummary(
-    val id: Long = 0L,
     val author: UserSummary = UserSummary(),
-    val name: String = "",
+    val comments: List<CommentSummary> = emptyList(),
+    val createdAt: LocalDateTime = now,
     val description: String? = null,
     val estTimeInMinutes: Int? = null,
+    val id: Long = 0L,
+    val images: List<String> = emptyList(),
+    val ingredients: List<Ingredient> = emptyList(),
+    val isBookmarked: Boolean = false,
     val isPublic: Boolean = true,
-    val createdAt: LocalDateTime = now,
+    val name: String = "",
     val updatedAt: LocalDateTime = now,
     val rating: AverageRating? = null,
     val reaction: Map<ReactionType, Int>? = null,
-    val totalReactions: Int = 0,
-    val comments: List<CommentSummary> = emptyList(),
+    val steps: List<String> = emptyList(),
+    val totalBookmarks: Long = 0L,
     val totalComments: Int = 0,
-    val images: List<String> = emptyList(),
-    val ingredients: List<Ingredient> = emptyList(),
-    val steps: List<String> = emptyList()
+    val totalReactions: Int = 0
 )

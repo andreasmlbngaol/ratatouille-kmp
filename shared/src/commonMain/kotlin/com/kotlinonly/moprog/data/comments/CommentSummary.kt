@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CommentSummary(
-    val id: Long = 0L,
-    val author: UserSummary = UserSummary(),
+    val author: UserSummary? = null,
     val content: String = "",
     val createdAt: LocalDateTime = now,
-    val rating: Double? = null,
-    val imageUrls: List<String> = emptyList()
+    val id: Long = 0L,
+    val imageUrls: List<String> = emptyList(),
+    val rating: Double? = null
 )

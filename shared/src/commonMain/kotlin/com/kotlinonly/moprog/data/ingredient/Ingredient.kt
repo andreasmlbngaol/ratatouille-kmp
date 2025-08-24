@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Ingredient(
+    val amount: Double? = null,
     val id: Long = 0L,
     val name: String = "",
-    val amount: Double? = null,
     val unit: String? = null
 )

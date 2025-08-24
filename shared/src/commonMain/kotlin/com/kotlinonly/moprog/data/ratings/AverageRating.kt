@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AverageRating(
-    val value: Double,
-    val count: Int
+    val count: Int,
+    val value: Double
 )

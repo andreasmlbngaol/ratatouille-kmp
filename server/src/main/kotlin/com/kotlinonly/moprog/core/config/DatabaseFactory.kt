@@ -1,7 +1,7 @@
 package com.kotlinonly.moprog.core.config
 
-import com.kotlinonly.moprog.core.database.SchemaVersion
-import com.kotlinonly.moprog.core.database.migrations
+import com.kotlinonly.moprog.database.SchemaVersion
+import com.kotlinonly.moprog.database.migrations
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.config.ApplicationConfig

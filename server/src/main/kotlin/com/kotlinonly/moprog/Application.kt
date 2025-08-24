@@ -1,10 +1,13 @@
 package com.kotlinonly.moprog
 
-import UsersRepository
 import com.kotlinonly.moprog.auth.authRoute
+import com.kotlinonly.moprog.auth.config.FirebaseConfig
+import com.kotlinonly.moprog.auth.config.JwtConfig
+import com.kotlinonly.moprog.auth.config.userId
 import com.kotlinonly.moprog.core.config.*
 import com.kotlinonly.moprog.core.controller.metricRoute
-import com.kotlinonly.moprog.core.data.AuthNames
+import com.kotlinonly.moprog.auth.data.AuthNames
+import com.kotlinonly.moprog.database.users.UsersRepository
 import com.kotlinonly.moprog.core.plugins.*
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.recipes.recipeRoute
@@ -23,7 +26,8 @@ import java.io.File
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
-val MY_DOMAIN = "https://moprog.sanalab.live"
+//const val MY_DOMAIN = "https://moprog.sanalab.live"
+lateinit var MY_DOMAIN: String
 
 fun Application.module() {
     initKtor(environment.config)
@@ -74,4 +78,5 @@ fun initKtor(
     EnvConfig.init()
     JwtConfig.init(config)
     DatabaseFactory.init(config)
+    MY_DOMAIN = config.property("ktor.domain").getString()
 }

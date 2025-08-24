@@ -1,15 +1,16 @@
 package com.kotlinonly.moprog.recipes
 
-import com.kotlinonly.moprog.core.config.userId
-import com.kotlinonly.moprog.core.database.comments.CommentsRepository
-import com.kotlinonly.moprog.core.database.comments_images.CommentsImagesRepository
-import com.kotlinonly.moprog.core.database.images.ImagesRepository
-import com.kotlinonly.moprog.core.database.ingredients.IngredientsRepository
-import com.kotlinonly.moprog.core.database.ratings.RatingsRepository
-import com.kotlinonly.moprog.core.database.reactions.ReactionsRepository
-import com.kotlinonly.moprog.core.database.recipes.RecipesRepository
-import com.kotlinonly.moprog.core.database.recipes_images.RecipesImagesRepository
-import com.kotlinonly.moprog.core.database.steps.StepsRepository
+import com.kotlinonly.moprog.auth.config.userId
+import com.kotlinonly.moprog.database.bookmarks.BookmarksRepository
+import com.kotlinonly.moprog.database.comments.CommentsRepository
+import com.kotlinonly.moprog.database.comments_images.CommentsImagesRepository
+import com.kotlinonly.moprog.database.images.ImagesRepository
+import com.kotlinonly.moprog.database.ingredients.IngredientsRepository
+import com.kotlinonly.moprog.database.ratings.RatingsRepository
+import com.kotlinonly.moprog.database.reactions.ReactionsRepository
+import com.kotlinonly.moprog.database.recipes.RecipesRepository
+import com.kotlinonly.moprog.database.recipes_images.RecipesImagesRepository
+import com.kotlinonly.moprog.database.steps.StepsRepository
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.data.ratings.CreateRatingRequest
 import com.kotlinonly.moprog.data.reactions.CreateReactionRequest
@@ -25,6 +26,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -148,76 +150,102 @@ fun Route.recipeRoute() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            // Add reader comment
-            post("/comments") {
-                val recipeId = call.parameters["id"]?.toLongOrNull()
-                    ?: return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+            route("/comments") {
+                // Add reader comment
+                post {
+                    val recipeId = call.parameters["id"]?.toLongOrNull()
+                        ?: return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
 
-                val userId = call.principal<JWTPrincipal>()!!.userId
+                    val userId = call.principal<JWTPrincipal>()!!.userId
 
-                RecipesRepository.isAuthor(recipeId, userId).let {
-                    if(it) return@post call.respondJson(HttpStatusCode.Forbidden, "You are the author of this recipe")
-                }
+                    RecipesRepository.isAuthor(recipeId, userId).let {
+                        if (it) return@post call.respondJson(
+                            HttpStatusCode.Forbidden,
+                            "You are the author of this recipe"
+                        )
+                    }
 
-                val multipart = call.receiveMultipart()
+                    val multipart = call.receiveMultipart()
 
-                var content: String? = null
-                var imagePath: String? = null
+                    var content: String? = null
+                    var imagePath: String? = null
 
-                multipart.forEachPart { part ->
-                    when (part) {
-                        is PartData.FileItem -> {
-                            val fileName = "image-${System.currentTimeMillis()}.webp"
-                            imagePath = "uploads/recipes/$recipeId/comments/$fileName"
-                            val file = File(imagePath)
-                            file.parentFile.mkdirs()
+                    multipart.forEachPart { part ->
+                        when (part) {
+                            is PartData.FileItem -> {
+                                val fileName = "image-${System.currentTimeMillis()}.webp"
+                                imagePath = "uploads/recipes/$recipeId/comments/$fileName"
+                                val file = File(imagePath)
+                                file.parentFile.mkdirs()
 
-                            // Convert BufferedImage
-                            part.streamProvider().use { input ->
-                                val image = ImageIO.read(input)
+                                // Convert BufferedImage
+                                part.streamProvider().use { input ->
+                                    val image = ImageIO.read(input)
 
-                                FileOutputStream(file).use { fos ->
-                                    val writers = ImageIO.getImageWritersByFormatName("webp")
+                                    FileOutputStream(file).use { fos ->
+                                        val writers = ImageIO.getImageWritersByFormatName("webp")
 
-                                    val writer = writers.next()
-                                    val ios = ImageIO.createImageOutputStream(fos)
-                                    writer.output = ios
+                                        val writer = writers.next()
+                                        val ios = ImageIO.createImageOutputStream(fos)
+                                        writer.output = ios
 
-                                    val param = writer.defaultWriteParam
-                                    if (param.canWriteCompressed()) {
-                                        param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+                                        val param = writer.defaultWriteParam
+                                        if (param.canWriteCompressed()) {
+                                            param.compressionMode = ImageWriteParam.MODE_EXPLICIT
 
-                                        println("Available compression types = ${param.compressionTypes?.joinToString()}")
-                                        param.compressionType = param.compressionTypes[0]
+                                            println("Available compression types = ${param.compressionTypes?.joinToString()}")
+                                            param.compressionType = param.compressionTypes[0]
 
-                                        param.compressionQuality = 0.8f // Compress to 80% quality
+                                            param.compressionQuality = 0.8f // Compress to 80% quality
+                                        }
+
+                                        writer.write(null, IIOImage(image, null, null), param)
+                                        ios.close()
+                                        writer.dispose()
                                     }
-
-                                    writer.write(null, IIOImage(image, null, null), param)
-                                    ios.close()
-                                    writer.dispose()
                                 }
                             }
+
+                            is PartData.FormItem -> {
+                                if (part.name == "content") content = part.value
+                            }
+
+                            else -> {}
                         }
-                        is PartData.FormItem -> {
-                            if (part.name == "content") content = part.value
-                        }
-                        else -> {}
                     }
+
+                    if (content.isNullOrBlank()) {
+                        return@post call.respondJson(HttpStatusCode.BadRequest, "Content is required")
+                    }
+
+                    val commentId = CommentsRepository.save(recipeId, userId, content)
+
+                    if (imagePath != null) {
+                        val imageId = ImagesRepository.save(imagePath)
+                        CommentsImagesRepository.save(commentId, imageId)
+                    }
+
+                    call.respond(HttpStatusCode.Created)
                 }
 
-                if(content.isNullOrBlank()) {
-                    return@post call.respondJson(HttpStatusCode.BadRequest, "Content is required")
+                // Delete comment
+                delete("/{commentId}") {
+                    val commentId = call.parameters["commentId"]?.toLongOrNull()
+                        ?: return@delete call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+
+                    CommentsRepository.existById(commentId).let {
+                        if(!it) return@delete call.respondJson(HttpStatusCode.NotFound, "Comment not found")
+                    }
+
+                    CommentsRepository.isAuthor(commentId, userId).let {
+                        if(!it) return@delete call.respondJson(HttpStatusCode.Forbidden, "You are not the author of this comment")
+                    }
+
+                    CommentsRepository.delete(commentId)
+                    call.respond(HttpStatusCode.OK)
                 }
-
-                val commentId = CommentsRepository.save(recipeId, userId, content)
-
-                if(imagePath != null) {
-                    val imageId = ImagesRepository.save(imagePath)
-                    CommentsImagesRepository.save(commentId, imageId)
-                }
-
-                call.respond(HttpStatusCode.Created)
             }
 
             // Add reader rating
@@ -257,6 +285,40 @@ fun Route.recipeRoute() {
                 }
                 ReactionsRepository.save(recipeId, userId, payload.reaction!!)
                 call.respond(HttpStatusCode.OK)
+            }
+
+            route("/bookmarks") {
+                // Save to bookmarks
+                post {
+                    val recipeId = call.parameters["id"]?.toLongOrNull()
+                        ?: return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+
+                    RecipesRepository.isAuthor(recipeId, userId).let {
+                        if (it) return@post call.respondJson(
+                            HttpStatusCode.Forbidden,
+                            "You are the author of this recipe"
+                        )
+                    }
+
+                    BookmarksRepository.isBookmarked(recipeId, userId).let {
+                        if (it) return@post call.respondJson(HttpStatusCode.OK, "Already bookmarked")
+                    }
+                    BookmarksRepository.save(recipeId, userId)
+                    call.respond(HttpStatusCode.Created)
+                }
+
+                // Delete from bookmarks
+                delete {
+                    val recipeId = call.parameters["id"]?.toLongOrNull()
+                        ?: return@delete call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+
+                    BookmarksRepository.delete(recipeId, userId)
+                    call.respond(HttpStatusCode.OK)
+                }
             }
         }
 
