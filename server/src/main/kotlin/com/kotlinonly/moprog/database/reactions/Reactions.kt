@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.reactions
 
-import com.kotlinonly.moprog.database.LongBaseTable
+import com.kotlinonly.moprog.database.utils.LongBaseTable
 import com.kotlinonly.moprog.database.recipes.Recipes
 import com.kotlinonly.moprog.database.users.Users
 import com.kotlinonly.moprog.data.reactions.ReactionType

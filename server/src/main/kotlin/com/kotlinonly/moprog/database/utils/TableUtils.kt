@@ -1,4 +1,4 @@
-package com.kotlinonly.moprog.database
+package com.kotlinonly.moprog.database.utils
 
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op

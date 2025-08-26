@@ -4,11 +4,15 @@ import com.kotlinonly.moprog.auth.config.userId
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.data.ratings.CreateRatingRequest
 import com.kotlinonly.moprog.data.recipes.CreateRecipeRequest
+import com.kotlinonly.moprog.data.recipes.RecipeCategory
 import com.kotlinonly.moprog.data.recipes.RecipeDetailSummary
+import com.kotlinonly.moprog.data.recipes.RecipeFilter
+import com.kotlinonly.moprog.data.recipes.SortType
 import com.kotlinonly.moprog.database.ingredients.IngredientsRepository
 import com.kotlinonly.moprog.database.ratings.RatingsRepository
 import com.kotlinonly.moprog.database.recipes.RecipesRepository
 import com.kotlinonly.moprog.database.steps.StepsRepository
+import com.kotlinonly.moprog.utils.enumValueOfOrNull
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -25,6 +29,7 @@ fun Route.recipeRoute() {
             val payload = call.receive<CreateRecipeRequest>()
 
             val recipeId = RecipesRepository.save(
+                category = payload.category,
                 name = payload.name,
                 authorId = userId,
                 estTimeInMinutes = payload.estTimeInMinutes,
@@ -47,7 +52,30 @@ fun Route.recipeRoute() {
 
         // Get simple response recipes with filters
         get {
-            TODO()
+            val searchQuery = call.request.queryParameters["search"]
+
+            val categoryAsText = call.request.queryParameters["category"] ?: RecipeCategory.ALL.name
+            val category = enumValueOfOrNull<RecipeCategory>(categoryAsText)
+                ?: return@get call.respondJson(HttpStatusCode.BadRequest, "Invalid category")
+
+            val sortAsText = call.request.queryParameters["sort"]
+            val sort = enumValueOfOrNull<SortType>(sortAsText)
+                ?: SortType.POPULAR
+
+            val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 10
+
+            val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?: 0
+
+            val filter = RecipeFilter(
+                name = searchQuery,
+                category = category,
+                sort = sort,
+                limit = limit,
+                offset = offset
+            )
+
+            val recipes = RecipesRepository.findAll(filter)
+            call.respond(recipes)
         }
 
         route("/{id}") {
@@ -56,7 +84,9 @@ fun Route.recipeRoute() {
                 val id = call.parameters["id"]?.toLongOrNull()
                     ?: return@get call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
 
-                val recipe: RecipeDetailSummary = RecipesRepository.findById(id)
+                val userId = call.principal<JWTPrincipal>()!!.userId
+
+                val recipe: RecipeDetailSummary = RecipesRepository.findById(id, userId)
                     ?: return@get call.respondJson(HttpStatusCode.NotFound, "Recipe not found")
 
                 if(!recipe.isPublic) {

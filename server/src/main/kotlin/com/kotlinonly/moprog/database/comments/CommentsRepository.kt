@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.comments
 
-import com.kotlinonly.moprog.database.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

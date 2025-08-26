@@ -15,6 +15,15 @@ object RecipesImagesRepository {
             .map { "$MY_DOMAIN/${it[Images.url]}" }
     }
 
+    fun findFirstByRecipeId(recipeId: Long) = transaction {
+        (RecipesImages innerJoin Images)
+            .select(Images.url)
+            .where { RecipesImages.recipeId eq recipeId }
+            .limit(1)
+            .map { "${MY_DOMAIN}/${it[Images.url]}" }
+            .firstOrNull()
+    }
+
     fun save(
         recipeId: Long,
         imageId: Long

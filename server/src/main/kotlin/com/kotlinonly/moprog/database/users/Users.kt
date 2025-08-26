@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.users
 
-import com.kotlinonly.moprog.database.StringBaseTable
+import com.kotlinonly.moprog.database.utils.StringBaseTable
 import com.kotlinonly.moprog.data.auth.AuthMethod
 
 object Users: StringBaseTable("users") {

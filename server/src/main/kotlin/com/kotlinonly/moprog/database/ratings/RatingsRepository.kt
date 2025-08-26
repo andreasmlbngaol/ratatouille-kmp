@@ -1,7 +1,7 @@
 package com.kotlinonly.moprog.database.ratings
 
-import com.kotlinonly.moprog.database.insertWithTimestamps
-import com.kotlinonly.moprog.database.updateWithTimestamps
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.updateWithTimestamps
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll

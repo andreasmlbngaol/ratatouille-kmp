@@ -5,10 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateRecipeRequest(
-    val name: String,
+    val category: RecipeCategory = RecipeCategory.OTHERS,
     val description: String? = null,
     val estTimeInMinutes: Int? = null,
     val isPublic: Boolean,
     val ingredients: List<IngredientRequest>,
+    val name: String,
     val steps: List<String>
 )

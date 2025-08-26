@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.steps
 
-import com.kotlinonly.moprog.database.batchInsertWithTimestamps
+import com.kotlinonly.moprog.database.utils.batchInsertWithTimestamps
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 

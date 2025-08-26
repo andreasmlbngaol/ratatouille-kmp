@@ -19,7 +19,7 @@ import io.ktor.server.routing.route
 fun Route.recipeReactionRoute() {
     route("/reactions") {
         // Add reader reaction
-        post("/reactions") {
+        post {
             val recipeId = call.parameters["id"]?.toLongOrNull()
                 ?: return@post call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
 
@@ -43,7 +43,7 @@ fun Route.recipeReactionRoute() {
         }
 
         // Delete reaction
-        delete("/reactions") {
+        delete {
             // TODO() Note: Split from the above post method later
         }
     }

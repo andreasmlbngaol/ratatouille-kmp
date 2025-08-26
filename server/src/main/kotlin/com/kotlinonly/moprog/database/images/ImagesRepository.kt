@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.images
 
-import com.kotlinonly.moprog.database.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object ImagesRepository {

@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.steps
 
-import com.kotlinonly.moprog.database.LongBaseTable
+import com.kotlinonly.moprog.database.utils.LongBaseTable
 import com.kotlinonly.moprog.database.recipes.Recipes
 import org.jetbrains.exposed.v1.core.ReferenceOption
 

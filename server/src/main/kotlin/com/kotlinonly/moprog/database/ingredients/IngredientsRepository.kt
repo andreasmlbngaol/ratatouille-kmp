@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.ingredients
 
-import com.kotlinonly.moprog.database.batchInsertWithTimestamps
+import com.kotlinonly.moprog.database.utils.batchInsertWithTimestamps
 import com.kotlinonly.moprog.data.ingredient.IngredientRequest
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

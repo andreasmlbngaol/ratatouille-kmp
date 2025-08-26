@@ -11,9 +11,10 @@ import com.kotlinonly.moprog.database.users.Users
 import com.kotlinonly.moprog.data.auth.UserSummary
 import com.kotlinonly.moprog.data.ratings.AverageRating
 import com.kotlinonly.moprog.data.recipes.RecipeDetailSummary
+import com.kotlinonly.moprog.data.recipes.RecipeSimpleSummary
 import org.jetbrains.exposed.v1.core.ResultRow
 
-fun ResultRow.toRecipeDetailSummary(): RecipeDetailSummary {
+fun ResultRow.toRecipeDetailSummary(userId: String): RecipeDetailSummary {
     // 1. Ambil author dari hasil yang sudah di join
     val author = UserSummary(
         id = this[Users.id].value,
@@ -48,11 +49,12 @@ fun ResultRow.toRecipeDetailSummary(): RecipeDetailSummary {
 
     // 8. Cek bookmark
     val totalBookmarks = BookmarksRepository.countByRecipeId(recipeId)
-    val isBookmarked = BookmarksRepository.isBookmarked(recipeId, author.id)
+    val isBookmarked = BookmarksRepository.isBookmarked(recipeId, userId)
 
     return RecipeDetailSummary(
         id = recipeId,
         author = author,
+        category = this[Recipes.category],
         name = this[Recipes.name],
         description = this[Recipes.description],
         estTimeInMinutes = this[Recipes.estTimeInMinutes],
@@ -69,5 +71,47 @@ fun ResultRow.toRecipeDetailSummary(): RecipeDetailSummary {
         steps = steps,
         totalBookmarks = totalBookmarks,
         isBookmarked = isBookmarked
+    )
+}
+
+fun ResultRow.toRecipeSimpleSummary(): RecipeSimpleSummary {
+    // 1. Ambil author dari hasil yang sudah di join
+    val author = UserSummary(
+        id = this[Users.id].value,
+        name = this[Users.name],
+        profilePictureUrl = this[Users.profilePictureUrl]
+    )
+
+    val recipeId = this[Recipes.id].value
+
+    // 2. Ambil gambar
+    val image = RecipesImagesRepository.findFirstByRecipeId(recipeId)
+
+    // 3. Ambil rating
+    val ratingList = RatingsRepository.findAllByRecipeId(recipeId)
+    val rating = if(ratingList.isEmpty()) null else AverageRating(
+        value = ratingList.average(),
+        count = ratingList.size
+    )
+
+    // 4. Ambil reaction
+    val reactionList = ReactionsRepository.findAllByRecipeId(recipeId)
+    val reactions = if(reactionList.isEmpty()) null else reactionList.groupingBy { it }.eachCount()
+
+    // 5. Cek bookmark
+    val totalBookmarks = BookmarksRepository.countByRecipeId(recipeId)
+
+    return RecipeSimpleSummary(
+        author = author,
+        category = this[Recipes.category],
+        createdAt = this[Recipes.createdAt],
+        estTimeInMinutes = this[Recipes.estTimeInMinutes],
+        id = recipeId,
+        image = image,
+        name = this[Recipes.name],
+        updatedAt = this[Recipes.updatedAt],
+        rating = rating,
+        reactions = reactions,
+        totalBookmarks = totalBookmarks
     )
 }

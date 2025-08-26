@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.bookmarks
 
-import com.kotlinonly.moprog.database.LongBaseTable
+import com.kotlinonly.moprog.database.utils.LongBaseTable
 import com.kotlinonly.moprog.database.recipes.Recipes
 import com.kotlinonly.moprog.database.users.Users
 import org.jetbrains.exposed.v1.core.ReferenceOption

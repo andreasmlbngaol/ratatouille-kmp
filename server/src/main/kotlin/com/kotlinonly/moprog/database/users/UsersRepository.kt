@@ -1,6 +1,6 @@
 package com.kotlinonly.moprog.database.users
 
-import com.kotlinonly.moprog.database.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import com.kotlinonly.moprog.data.auth.User
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

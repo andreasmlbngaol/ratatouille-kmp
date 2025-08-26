@@ -1,7 +1,7 @@
 package com.kotlinonly.moprog.database.reactions
 
-import com.kotlinonly.moprog.database.insertWithTimestamps
-import com.kotlinonly.moprog.database.updateWithTimestamps
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.updateWithTimestamps
 import com.kotlinonly.moprog.data.reactions.ReactionType
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.and
