@@ -11,6 +11,7 @@ import com.kotlinonly.moprog.database.users.UsersRepository
 import com.kotlinonly.moprog.core.plugins.*
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.recipes.recipeRoute
+import com.kotlinonly.moprog.users.userRoute
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -65,6 +66,8 @@ fun Application.module() {
                 }
 
                 recipeRoute()
+
+                userRoute()
             }
         }
     }

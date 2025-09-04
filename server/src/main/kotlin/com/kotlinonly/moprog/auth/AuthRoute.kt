@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.kotlinonly.moprog.auth.config.JwtConfig
 import com.kotlinonly.moprog.core.utils.respondJson
+import com.kotlinonly.moprog.data.auth.CheckEmailRequest
 import com.kotlinonly.moprog.data.auth.LoginRequest
 import com.kotlinonly.moprog.data.auth.LoginResponse
 import com.kotlinonly.moprog.data.auth.RefreshTokenRequest
@@ -64,7 +65,7 @@ fun Route.authRoute() {
                     id = uid,
                     email = decoded.email ?: "",
                     name = decoded.name ?: "",
-                    profilePictureUrl = decoded.picture ?: "",
+                    profilePictureUrl = decoded.picture,
                     isEmailVerified = decoded.isEmailVerified,
                     method = method
                 ).also { UsersRepository.save(it) }
@@ -82,6 +83,15 @@ fun Route.authRoute() {
                     )
                 )
             )
+        }
+
+        post("/register/check-email") {
+            val payload = call.receive<CheckEmailRequest>()
+
+            val email = payload.email
+            if(UsersRepository.existByEmail(email)) return@post call.respondJson(HttpStatusCode.Conflict, "Email already used")
+
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
