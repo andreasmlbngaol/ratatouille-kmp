@@ -3,9 +3,7 @@ package com.kotlinonly.moprog.data.auth
 import com.kotlinonly.moprog.data.core.now
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Serializable
 data class User(
     val createdAt: LocalDateTime = now,
