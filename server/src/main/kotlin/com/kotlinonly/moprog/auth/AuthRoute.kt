@@ -66,8 +66,10 @@ fun Route.authRoute() {
                     email = decoded.email ?: "",
                     name = decoded.name ?: "",
                     profilePictureUrl = decoded.picture,
+                    coverPictureUrl = null,
                     isEmailVerified = decoded.isEmailVerified,
-                    method = method
+                    method = method,
+                    bio = null
                 ).also { UsersRepository.save(it) }
             }
 

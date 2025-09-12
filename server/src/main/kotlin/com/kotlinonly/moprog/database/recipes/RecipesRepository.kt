@@ -31,7 +31,12 @@ object RecipesRepository {
         if(filter.category != RecipeCategory.ALL)
             stmt = stmt.andWhere { Recipes.category eq filter.category }
 
+        filter.isPublic?.let { isPublic ->
+            stmt = stmt.andWhere { Recipes.isPublic eq isPublic }
+        }
+
         stmt = stmt
+            .andWhere { Recipes.status eq filter.status }
             .limit(filter.limit)
             .offset(filter.offset)
 
@@ -67,5 +72,17 @@ object RecipesRepository {
             .select(Recipes.id)
             .where { (Recipes.id eq recipeId) and  (Recipes.authorId eq userId) }
             .count() > 0
+    }
+
+    fun countByAuthorId(authorId: String, filter: RecipeFilter) = transaction {
+        var stmt = Recipes
+            .select(Recipes.id)
+            .where { Recipes.authorId eq authorId }
+
+        filter.isPublic?.let { isPublic ->
+            stmt = stmt.andWhere { Recipes.isPublic eq isPublic }
+        }
+
+        return@transaction stmt.count()
     }
 }

@@ -2,6 +2,7 @@ package com.kotlinonly.moprog.database.users
 
 import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import com.kotlinonly.moprog.data.auth.User
+import com.kotlinonly.moprog.data.recipes.RecipeFilter
 import com.kotlinonly.moprog.database.utils.updateWithTimestamps
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -12,6 +13,14 @@ object UsersRepository {
             .selectAll()
             .where { Users.id eq id }
             .map { it.toUser() }
+            .firstOrNull()
+    }
+
+    fun findDetailById(userId: String, filter: RecipeFilter) = transaction {
+        Users
+            .selectAll()
+            .where { Users.id eq userId }
+            .map { it.toUserDetail(filter) }
             .firstOrNull()
     }
 

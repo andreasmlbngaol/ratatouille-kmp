@@ -77,7 +77,7 @@ fun initKtor(
     config: ApplicationConfig
 ) {
     FirebaseConfig.init()
-    EnvConfig.init()
+//    EnvConfig.init()
     JwtConfig.init(config)
     DatabaseFactory.init(config)
     MY_DOMAIN = config.property("ktor.domain").getString()

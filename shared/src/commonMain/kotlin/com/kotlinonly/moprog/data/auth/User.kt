@@ -9,11 +9,13 @@ import kotlin.time.ExperimentalTime
 @Serializable
 data class User(
     val createdAt: LocalDateTime = now,
-    val email: String? = null,
+    val email: String = "",
     val id: String = "",
     val isEmailVerified: Boolean = false,
     val method: AuthMethod = AuthMethod.EMAIL_AND_PASSWORD,
     val name: String = "",
     val profilePictureUrl: String? = null,
+    val coverPictureUrl: String? = null,
+    val bio: String? = null
 )
 
