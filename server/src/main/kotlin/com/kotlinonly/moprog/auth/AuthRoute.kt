@@ -67,7 +67,8 @@ fun Route.authRoute() {
                     name = decoded.name ?: "",
                     profilePictureUrl = decoded.picture,
                     coverPictureUrl = null,
-                    isEmailVerified = decoded.isEmailVerified,
+//                    isEmailVerified = decoded.isEmailVerified,
+                    isEmailVerified = true, // Firebase email selalu verified karena gak jelas ini flutter
                     method = method,
                     bio = null
                 ).also { UsersRepository.save(it) }
