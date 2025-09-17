@@ -2,10 +2,12 @@ package com.kotlinonly.moprog.database.recipes
 
 import com.kotlinonly.moprog.data.recipes.RecipeCategory
 import com.kotlinonly.moprog.data.recipes.RecipeFilter
+import com.kotlinonly.moprog.data.recipes.RecipeStatus
 import com.kotlinonly.moprog.data.recipes.SortType
 import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import com.kotlinonly.moprog.database.users.Users
 import com.kotlinonly.moprog.database.utils.ilike
+import com.kotlinonly.moprog.database.utils.updateWithTimestamps
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.jdbc.andWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -13,6 +15,61 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object RecipesRepository {
+    fun createDraft(userId: String) = transaction {
+        Recipes.insertWithTimestamps {
+            it[Recipes.name] = ""
+            it[Recipes.authorId] = userId
+            it[Recipes.description] = ""
+            it[Recipes.category] = RecipeCategory.OTHERS
+            it[Recipes.estTimeInMinutes] = null
+            it[Recipes.isPublic] = false
+            it[Recipes.status] = RecipeStatus.Draft
+        }.value
+    }
+
+    fun findBaseById(id: Long) = transaction {
+        Recipes
+            .selectAll()
+            .where { Recipes.id eq id }
+            .map { it.toRecipeBase() }
+            .singleOrNull()
+    }
+
+    fun findDraftBaseByAuthorId(userId: String) = transaction {
+        Recipes
+            .selectAll()
+            .where { (Recipes.authorId eq userId) and (Recipes.status eq RecipeStatus.Draft) }
+            .map { it.toRecipeBase() }
+            .singleOrNull()
+    }
+
+    fun existByIdAndAuthorId(id: Long, userId: String) = transaction {
+        Recipes
+            .select(Recipes.id)
+            .where { Recipes.id eq id }
+            .andWhere { Recipes.authorId eq userId }
+            .andWhere { Recipes.status eq RecipeStatus.Draft }
+            .count() > 0
+    }
+
+    fun saveBase(
+        id: Long,
+        name: String,
+        description: String?,
+        category: RecipeCategory,
+        estTimeInMinutes: Int?,
+        isPublic: Boolean
+    ) = transaction {
+        Recipes
+            .updateWithTimestamps({ Recipes.id eq id }) {
+                it[Recipes.name] = name
+                it[Recipes.description] = description
+                it[Recipes.category] = category
+                it[Recipes.estTimeInMinutes] = estTimeInMinutes
+                it[Recipes.isPublic] = isPublic
+            }
+    }
+
     fun findById(id: Long, userId: String) = transaction {
         // Join dengan User langsung karena one-to-one
         (Recipes innerJoin Users).selectAll()
@@ -20,6 +77,7 @@ object RecipesRepository {
             .map { it.toRecipeDetailSummary(userId) }
             .singleOrNull()
     }
+
 
     fun findAll(filter: RecipeFilter) = transaction {
         val query = Recipes innerJoin Users

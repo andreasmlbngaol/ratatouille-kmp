@@ -10,6 +10,7 @@ import com.kotlinonly.moprog.database.steps.StepsRepository
 import com.kotlinonly.moprog.database.users.Users
 import com.kotlinonly.moprog.data.auth.UserSummary
 import com.kotlinonly.moprog.data.ratings.AverageRating
+import com.kotlinonly.moprog.data.recipes.RecipeBase
 import com.kotlinonly.moprog.data.recipes.RecipeDetailSummary
 import com.kotlinonly.moprog.data.recipes.RecipeSimpleSummary
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -66,7 +67,7 @@ fun ResultRow.toRecipeDetailSummary(userId: String): RecipeDetailSummary {
         totalReactions = reactionList.size,
         comments = comments,
         totalComments = comments.size,
-        images = images,
+        images = images.values.toList(),
         ingredients = ingredients,
         steps = steps,
         totalBookmarks = totalBookmarks,
@@ -113,5 +114,19 @@ fun ResultRow.toRecipeSimpleSummary(): RecipeSimpleSummary {
         rating = rating,
         reactions = reactions,
         totalBookmarks = totalBookmarks
+    )
+}
+
+fun ResultRow.toRecipeBase(): RecipeBase {
+    val imagesUrls = RecipesImagesRepository.findAllByRecipeId(this[Recipes.id].value)
+    return RecipeBase(
+        id = this[Recipes.id].value,
+        name = this[Recipes.name],
+        authorId = this[Recipes.authorId].value,
+        description = this[Recipes.description],
+        category = this[Recipes.category],
+        isPublic = this[Recipes.isPublic],
+        status = this[Recipes.status],
+        imageUrls = imagesUrls
     )
 }

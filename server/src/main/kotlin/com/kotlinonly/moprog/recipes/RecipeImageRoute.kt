@@ -42,13 +42,13 @@ fun Route.recipeImageRoute() {
             }
 
             val multipart = call.receiveMultipart()
-            var filePath: String? = null
+            val savedImages = mutableListOf<Long>()
 
             multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FileItem -> {
                         val fileName = "image-${System.currentTimeMillis()}.webp"
-                        filePath = "uploads/recipes/$id/$fileName"
+                        val filePath = "uploads/recipes/$id/$fileName"
                         val file = File(filePath)
                         file.parentFile.mkdirs()
 
@@ -70,10 +70,7 @@ fun Route.recipeImageRoute() {
                                 val param = writer.defaultWriteParam
                                 if (param.canWriteCompressed()) {
                                     param.compressionMode = ImageWriteParam.MODE_EXPLICIT
-
-                                    println("Available compression types = ${param.compressionTypes?.joinToString()}")
                                     param.compressionType = param.compressionTypes[0]
-
                                     param.compressionQuality = 0.8f // Compress to 80% quality
                                 }
 
@@ -82,6 +79,10 @@ fun Route.recipeImageRoute() {
                                 writer.dispose()
                             }
                         }
+
+                        val imageId = ImagesRepository.save(filePath)
+                        RecipesImagesRepository.save(id, imageId)
+                        savedImages.add(imageId)
                     }
 
                     else -> {}
@@ -89,10 +90,7 @@ fun Route.recipeImageRoute() {
                 part.dispose()
             }
 
-            if (filePath == null) return@post call.respondJson(HttpStatusCode.BadRequest, "No file uploaded")
-
-            val imageId = ImagesRepository.save(filePath)
-            RecipesImagesRepository.save(id, imageId)
+            if(savedImages.isEmpty()) return@post call.respondJson(HttpStatusCode.BadRequest, "No image uploaded")
 
             call.respond(HttpStatusCode.OK)
         }

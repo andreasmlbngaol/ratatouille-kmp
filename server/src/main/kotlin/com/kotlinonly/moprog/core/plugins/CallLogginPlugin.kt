@@ -17,5 +17,4 @@ fun Application.callLoggingPlugin() {
             "$httpMethod $uri - $status"
         }
     }
-
 }
