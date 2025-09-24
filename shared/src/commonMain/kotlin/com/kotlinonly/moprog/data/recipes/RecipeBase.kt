@@ -1,5 +1,6 @@
 package com.kotlinonly.moprog.data.recipes
 
+import com.kotlinonly.moprog.data.image.Image
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,5 +12,5 @@ data class RecipeBase(
     val category: RecipeCategory = RecipeCategory.OTHERS,
     val isPublic: Boolean = true,
     val status: RecipeStatus = RecipeStatus.Draft,
-    val imageUrls: Map<Long, String> = emptyMap()
+    val imageUrls: List<Image> = emptyList()
 )

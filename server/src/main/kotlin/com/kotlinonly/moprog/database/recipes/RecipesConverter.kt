@@ -37,7 +37,8 @@ fun ResultRow.toRecipeDetailSummary(userId: String): RecipeDetailSummary {
     val reactions = if(reactionList.isEmpty()) null else reactionList.groupingBy { it }.eachCount()
 
     // 4. Ambil gambar
-    val images = RecipesImagesRepository.findAllByRecipeId(recipeId)
+    val imageUrls = RecipesImagesRepository.findAllByRecipeId(recipeId)
+        .map { it.url }
 
     // 5. Ambil bahan
     val ingredients = IngredientsRepository.findAllByRecipeId(recipeId)
@@ -67,7 +68,7 @@ fun ResultRow.toRecipeDetailSummary(userId: String): RecipeDetailSummary {
         totalReactions = reactionList.size,
         comments = comments,
         totalComments = comments.size,
-        images = images.values.toList(),
+        images = imageUrls,
         ingredients = ingredients,
         steps = steps,
         totalBookmarks = totalBookmarks,

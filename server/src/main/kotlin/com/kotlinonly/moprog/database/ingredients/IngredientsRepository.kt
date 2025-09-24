@@ -2,12 +2,13 @@ package com.kotlinonly.moprog.database.ingredients
 
 import com.kotlinonly.moprog.database.utils.batchInsertWithTimestamps
 import com.kotlinonly.moprog.data.ingredient.IngredientRequest
+import com.kotlinonly.moprog.database.ingredient_tags.IngredientTags
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object IngredientsRepository {
     fun findAllByRecipeId(recipeId: Long) = transaction {
-        Ingredients
+        (Ingredients innerJoin IngredientTags)
             .selectAll()
             .where { Ingredients.recipeId eq recipeId }
             .orderBy(Ingredients.id)
@@ -21,7 +22,8 @@ object IngredientsRepository {
         Ingredients
             .batchInsertWithTimestamps(ingredients) { ingredient ->
                 this[Ingredients.recipeId] = recipeId
-                this[Ingredients.name] = ingredient.name
+                this[Ingredients.tagId] = ingredient.tagId
+                this[Ingredients.alternative] = ingredient.alternative
                 this[Ingredients.amount] = ingredient.amount
                 this[Ingredients.unit] = ingredient.unit
             }

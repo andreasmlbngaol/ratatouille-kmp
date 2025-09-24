@@ -4,29 +4,30 @@ agp = "8.11.0"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activity = "1.10.1"
+androidx-activity = "1.11.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.2"
+androidx-lifecycle = "2.9.4"
 androidx-testExt = "1.3.0"
-composeMultiplatform = "1.9.0-alpha03"
+composeMultiplatform = "1.10.0-alpha01"
 junit = "4.13.2"
-kotlin = "2.2.10"
-ktor = "3.2.3"
+kotlin = "2.2.20"
+ktor = "3.3.0"
 logback = "1.5.18"
 kotlinxSerializationJson = "1.9.0"
 kotlinx-datetime = "0.7.1"
 firebase-admin = "9.5.0"
-micrometer-registry = "1.15.3"
-exposed = "1.0.0-beta-5"
-postgresql = "42.7.7"
+micrometer-registry = "1.15.4"
+exposed = "1.0.0-beta-5" #Jangan pernah di upgrade karna beda :v
+mysql = "9.4.0"
+postgresql = "42.7.8"
 hikari-cp = "7.0.2"
 image-io = "0.1.6"
 
-navigation-compose = "2.9.0-beta05"
-koin = "4.1.0"
-firebaseBom = "34.1.0"
+navigation-compose = "2.9.0"
+koin = "4.1.1"
+firebaseBom = "34.3.0"
 firebaseAuthKtx = "23.2.1"
 firebaseAuth = "24.0.1"
 datastore = "1.1.7"
@@ -72,6 +73,7 @@ firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
+mysql = { module = "com.mysql:mysql-connector-j", version.ref = "mysql" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-cp" }
 webp-image-io = { module = "org.sejda.imageio:webp-imageio", version.ref = "image-io" }

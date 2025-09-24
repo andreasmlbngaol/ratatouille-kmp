@@ -2,6 +2,7 @@ package com.kotlinonly.moprog.database.recipes_images
 
 import com.kotlinonly.moprog.MY_DOMAIN
 import com.kotlinonly.moprog.database.images.Images
+import com.kotlinonly.moprog.database.images.toImage
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
@@ -14,7 +15,7 @@ object RecipesImagesRepository {
         (RecipesImages innerJoin Images)
             .select(Images.url, Images.id)
             .where { RecipesImages.recipeId eq recipeId }
-            .associate { it[Images.id].value to "$MY_DOMAIN/${it[Images.url]}" }
+            .map { it.toImage() }
     }
 
     fun deleteByImageId(imageId: Long) = transaction {

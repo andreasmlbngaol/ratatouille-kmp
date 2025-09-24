@@ -5,6 +5,7 @@ import com.kotlinonly.moprog.database.comments.Comments
 import com.kotlinonly.moprog.database.comments_images.CommentsImages
 import com.kotlinonly.moprog.database.follows.Follows
 import com.kotlinonly.moprog.database.images.Images
+import com.kotlinonly.moprog.database.ingredient_tags.IngredientTags
 import com.kotlinonly.moprog.database.ingredients.Ingredients
 import com.kotlinonly.moprog.database.ratings.Ratings
 import com.kotlinonly.moprog.database.reactions.Reactions
@@ -45,6 +46,11 @@ val migrations = listOf(
         SchemaUtils.create(
             StepsImages,
             Follows
+        )
+    },
+    Migration(4) {
+        SchemaUtils.create(
+            IngredientTags
         )
     }
 )

@@ -1,27 +1,45 @@
 package com.kotlinonly.moprog.database.steps
 
-import com.kotlinonly.moprog.database.utils.batchInsertWithTimestamps
-import org.jetbrains.exposed.v1.jdbc.select
+import com.kotlinonly.moprog.data.ingredient.StepRequest
+import com.kotlinonly.moprog.database.utils.insertWithTimestamps
+import com.kotlinonly.moprog.database.utils.updateWithTimestamps
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object StepsRepository {
+    fun createEmptyStep(
+        recipeId: Long,
+        stepNumber: Int
+    ) = transaction {
+        Steps
+            .insertWithTimestamps {
+                it[Steps.recipeId] = recipeId
+                it[Steps.stepNumber] = stepNumber
+                it[Steps.content] = ""
+            }
+    }
     fun findAllByRecipeId(recipeId: Long) = transaction {
         Steps
-            .select(Steps.content)
-            .orderBy(Steps.stepNumber)
+            .selectAll()
             .where { Steps.recipeId eq recipeId }
-            .map { it[Steps.content] }
+            .orderBy(Steps.stepNumber)
+            .map { it.toStep() }
     }
 
     fun saveAll(
-        recipeId: Long,
-        steps: List<String>
+        steps: List<StepRequest>
     ) = transaction {
-        Steps
-            .batchInsertWithTimestamps(steps.withIndex()) { (index, step) ->
-                this[Steps.recipeId] = recipeId
-                this[Steps.stepNumber] = index + 1
-                this[Steps.content] = step
+        steps.forEach { step ->
+            Steps.updateWithTimestamps({ Steps.id eq step.id }) {
+                it[Steps.content] = step.content
             }
+        }
+    }
+
+    fun delete(id: Long) = transaction {
+        Steps
+            .deleteWhere { Steps.id eq id }
     }
 }

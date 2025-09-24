@@ -48,7 +48,7 @@ object RecipesRepository {
             .select(Recipes.id)
             .where { Recipes.id eq id }
             .andWhere { Recipes.authorId eq userId }
-            .andWhere { Recipes.status eq RecipeStatus.Draft }
+//            .andWhere { Recipes.status eq RecipeStatus.Draft }
             .count() > 0
     }
 
