@@ -2,14 +2,16 @@ package com.kotlinonly.moprog.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.kotlinonly.moprog.core.config.JwtConfig
+import com.kotlinonly.moprog.auth.config.JwtConfig
 import com.kotlinonly.moprog.core.utils.respondJson
+import com.kotlinonly.moprog.data.auth.CheckEmailRequest
 import com.kotlinonly.moprog.data.auth.LoginRequest
 import com.kotlinonly.moprog.data.auth.LoginResponse
 import com.kotlinonly.moprog.data.auth.RefreshTokenRequest
 import com.kotlinonly.moprog.data.auth.RefreshTokenResponse
 import com.kotlinonly.moprog.data.auth.User
 import com.kotlinonly.moprog.data.core.logE
+import com.kotlinonly.moprog.database.users.UsersRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -63,9 +65,12 @@ fun Route.authRoute() {
                     id = uid,
                     email = decoded.email ?: "",
                     name = decoded.name ?: "",
-                    profilePictureUrl = decoded.picture ?: "",
-                    isEmailVerified = decoded.isEmailVerified,
-                    method = method
+                    profilePictureUrl = decoded.picture,
+                    coverPictureUrl = null,
+//                    isEmailVerified = decoded.isEmailVerified,
+                    isEmailVerified = true, // Firebase email selalu verified karena gak jelas ini flutter
+                    method = method,
+                    bio = null
                 ).also { UsersRepository.save(it) }
             }
 
@@ -81,6 +86,15 @@ fun Route.authRoute() {
                     )
                 )
             )
+        }
+
+        post("/register/check-email") {
+            val payload = call.receive<CheckEmailRequest>()
+
+            val email = payload.email
+            if(UsersRepository.existByEmail(email)) return@post call.respondJson(HttpStatusCode.Conflict, "Email already used")
+
+            call.respond(HttpStatusCode.OK)
         }
     }
 }

@@ -2,7 +2,7 @@ package com.kotlinonly.moprog.core.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.kotlinonly.moprog.core.data.AuthNames
+import com.kotlinonly.moprog.auth.data.AuthNames
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication

@@ -10,12 +10,10 @@ import io.ktor.server.plugins.statuspages.StatusPages
 fun Application.statusPagesPlugin() {
     install(StatusPages) {
         exception<BadRequestException> { call, cause ->
-//            cause.printStackTrace()
             println(cause.message)
             call.respondJson(HttpStatusCode.BadRequest, "Invalid Request Body")
         }
         exception<Throwable> { call, cause ->
-//            cause.printStackTrace()
             println(cause.message)
             call.respondJson(HttpStatusCode.InternalServerError, cause::class.qualifiedName ?: "Unknown error")
         }
