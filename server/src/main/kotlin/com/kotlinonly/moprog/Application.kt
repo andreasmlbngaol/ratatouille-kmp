@@ -1,28 +1,33 @@
 package com.kotlinonly.moprog
 
-import com.kotlinonly.moprog.core.config.DatabaseFactory
-import com.kotlinonly.moprog.core.config.EnvConfig
-import com.kotlinonly.moprog.core.config.FirebaseConfig
-import com.kotlinonly.moprog.core.config.JwtConfig
+import com.kotlinonly.moprog.auth.authRoute
+import com.kotlinonly.moprog.auth.config.FirebaseConfig
+import com.kotlinonly.moprog.auth.config.JwtConfig
+import com.kotlinonly.moprog.auth.config.userId
+import com.kotlinonly.moprog.core.config.*
 import com.kotlinonly.moprog.core.controller.metricRoute
-import com.kotlinonly.moprog.core.plugins.authenticationPlugin
-import com.kotlinonly.moprog.core.plugins.callLoggingPlugin
-import com.kotlinonly.moprog.core.plugins.contentNegotiationPlugin
-import com.kotlinonly.moprog.core.plugins.corsPlugin
-import com.kotlinonly.moprog.core.plugins.micrometerMetricsPlugin
-import com.kotlinonly.moprog.core.plugins.statusPagesPlugin
+import com.kotlinonly.moprog.auth.data.AuthNames
+import com.kotlinonly.moprog.database.users.UsersRepository
+import com.kotlinonly.moprog.core.plugins.*
 import com.kotlinonly.moprog.core.utils.respondJson
-import io.ktor.http.HttpStatusCode
+import com.kotlinonly.moprog.recipes.recipeRoute
+import com.kotlinonly.moprog.users.userRoute
+import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.config.ApplicationConfig
-import io.ktor.server.engine.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.config.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import java.io.File
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
+
+lateinit var MY_DOMAIN: String
 
 fun Application.module() {
     initKtor(environment.config)
@@ -37,6 +42,8 @@ fun Application.module() {
 
 
     routing {
+        staticFiles("/uploads", File("uploads"))
+
         route("/") {
             get {
                 call.respondRedirect("/api")
@@ -44,8 +51,24 @@ fun Application.module() {
         }
 
         route("/api") {
-            get { call.respondJson(HttpStatusCode.OK, "Allo Woldeu") }
+            get { call.respondJson(HttpStatusCode.OK, "Mari kita ngetes CI/CD kita ini") }
             metricRoute(appMicrometerRegistry)
+            authRoute()
+
+            // Protected Route
+            authenticate(AuthNames.JWT_AUTH) {
+                // Untuk mengecek token
+                get("/ping-protected") {
+                    val userId = call.principal<JWTPrincipal>()!!.userId
+                    UsersRepository.findById(userId) ?: return@get call.respondJson(HttpStatusCode.Unauthorized, "User not found")
+
+                    call.respond(HttpStatusCode.OK)
+                }
+
+                recipeRoute()
+
+                userRoute()
+            }
         }
     }
 }
@@ -54,7 +77,8 @@ fun initKtor(
     config: ApplicationConfig
 ) {
     FirebaseConfig.init()
-    EnvConfig.init()
+//    EnvConfig.init()
     JwtConfig.init(config)
     DatabaseFactory.init(config)
+    MY_DOMAIN = config.property("ktor.domain").getString()
 }
