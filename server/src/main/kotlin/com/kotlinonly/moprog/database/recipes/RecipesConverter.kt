@@ -125,9 +125,10 @@ fun ResultRow.toRecipeBase(): RecipeBase {
         name = this[Recipes.name],
         authorId = this[Recipes.authorId].value,
         description = this[Recipes.description],
+        estTimeInMinutes = this[Recipes.estTimeInMinutes],
         category = this[Recipes.category],
         isPublic = this[Recipes.isPublic],
         status = this[Recipes.status],
-        imageUrls = imagesUrls
+        images = imagesUrls
     )
 }
