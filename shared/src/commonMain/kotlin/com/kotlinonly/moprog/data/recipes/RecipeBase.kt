@@ -9,8 +9,9 @@ data class RecipeBase(
     val name: String = "",
     val authorId: String = "",
     val description: String? = null,
+    val estTimeInMinutes: Int? = null,
     val category: RecipeCategory = RecipeCategory.OTHERS,
     val isPublic: Boolean = true,
     val status: RecipeStatus = RecipeStatus.Draft,
-    val imageUrls: List<Image> = emptyList()
+    val images: List<Image> = emptyList()
 )
