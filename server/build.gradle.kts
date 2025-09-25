@@ -18,6 +18,12 @@ tasks.named<JavaExec>("run") {
     workingDir = rootProject.projectDir
 }
 
+tasks.shadowJar {
+    archiveBaseName.set("server")
+    archiveClassifier.set(System.getenv("BRANCH") ?: "development")
+    archiveVersion.set("all")
+}
+
 dependencies {
     implementation(projects.shared)
     implementation(libs.logback)
