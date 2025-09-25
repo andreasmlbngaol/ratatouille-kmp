@@ -136,7 +136,7 @@ fun Route.recipeDraftBaseRoute() {
                         "No image uploaded"
                     )
 
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(RecipesImagesRepository.findAllByRecipeId(id))
                 }
 
                 delete {
