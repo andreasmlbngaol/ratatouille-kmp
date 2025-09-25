@@ -51,7 +51,7 @@ fun Application.module() {
         }
 
         route("/api") {
-            get { call.respondJson(HttpStatusCode.OK, "Plislah bisa yok") }
+            get { call.respondJson(HttpStatusCode.OK, "Apakah kita akan sukses adik adik?") }
             metricRoute(appMicrometerRegistry)
             authRoute()
 

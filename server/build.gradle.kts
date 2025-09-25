@@ -24,6 +24,15 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
     archiveVersion.set("") // optional, hapus versi kalau mau
     from(sourceSets.main.get().output)
     configurations = listOf(project.configurations.runtimeClasspath.get())
+
+    manifest {
+        attributes(
+            "Main-Class" to "com.kotlinonly.moprog.ApplicationKt"
+        )
+    }
+
+    // Hapus signature files
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 
 tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJarProd") {
@@ -32,6 +41,15 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
     archiveVersion.set("")
     from(sourceSets.main.get().output)
     configurations = listOf(project.configurations.runtimeClasspath.get())
+
+    manifest {
+        attributes(
+            "Main-Class" to "com.kotlinonly.moprog.ApplicationKt"
+        )
+    }
+
+    // Hapus signature files
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 
 dependencies {
