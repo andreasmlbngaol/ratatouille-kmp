@@ -18,10 +18,20 @@ tasks.named<JavaExec>("run") {
     workingDir = rootProject.projectDir
 }
 
-tasks.shadowJar {
-    archiveBaseName.set("server")
-    archiveClassifier.set(System.getenv("BRANCH") ?: "development")
-    archiveVersion.set("all")
+tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJarDev") {
+    archiveBaseName.set("server-development-all")
+    archiveClassifier.set("")
+    archiveVersion.set("") // optional, hapus versi kalau mau
+    from(sourceSets.main.get().output)
+    configurations = listOf(project.configurations.runtimeClasspath.get())
+}
+
+tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJarProd") {
+    archiveBaseName.set("server-master-all")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    from(sourceSets.main.get().output)
+    configurations = listOf(project.configurations.runtimeClasspath.get())
 }
 
 dependencies {
