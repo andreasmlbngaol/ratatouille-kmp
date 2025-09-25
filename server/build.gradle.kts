@@ -30,6 +30,9 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
             "Main-Class" to "com.kotlinonly.moprog.ApplicationKt"
         )
     }
+
+    // Hapus signature files
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 
 tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJarProd") {
@@ -44,6 +47,9 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
             "Main-Class" to "com.kotlinonly.moprog.ApplicationKt"
         )
     }
+
+    // Hapus signature files
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 }
 
 dependencies {
