@@ -161,7 +161,7 @@ fun Route.recipeDraftBaseRoute() {
                         )
                     }
 
-                    call.respond(HttpStatusCode.OK)
+                    call.respond(RecipesImagesRepository.findAllByRecipeId(id))
                 }
             }
         }
