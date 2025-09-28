@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class UpdateRecipeBaseRequest(
     val name: String,
     val description: String? = null,
-    val category: RecipeCategory,
+    val category: RecipeCategory = RecipeCategory.OTHERS,
     val estTimeInMinutes: Int? = null,
     val isPublic: Boolean
 )
