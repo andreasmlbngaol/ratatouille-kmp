@@ -51,7 +51,7 @@ fun Application.module() {
         }
 
         route("/api") {
-            get { call.respondJson(HttpStatusCode.OK, "Ini ngetes CI/CD?") }
+            get { call.respondJson(HttpStatusCode.OK, "Ini ngetes CI/CD...") }
             metricRoute(appMicrometerRegistry)
             authRoute()
 
