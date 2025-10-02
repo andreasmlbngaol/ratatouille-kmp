@@ -24,7 +24,12 @@ fun Route.recipeDraftIngredientRoute() {
         route("/tags") {
             get {
                 val payload = call.receive<IngredientTagRequest>()
-                call.respond(IngredientTagsRepository.findByNameILike(payload.name))
+                call.respond(
+                    IngredientTagsRepository.findByNameILikeWithLimit(
+                        payload.name,
+                        payload.limit
+                    )
+                )
             }
 
             post {
