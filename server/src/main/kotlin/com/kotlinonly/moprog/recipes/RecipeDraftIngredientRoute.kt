@@ -27,7 +27,7 @@ fun Route.recipeDraftIngredientRoute() {
                 call.respond(
                     IngredientTagsRepository.findByNameILikeWithLimit(
                         payload.name,
-                        payload.limit
+                        payload.limit ?: 4
                     )
                 )
             }
