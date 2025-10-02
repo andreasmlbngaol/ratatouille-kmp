@@ -12,7 +12,7 @@ object IngredientTagsRepository {
     ) = transaction {
         IngredientTags
             .selectAll()
-            .where { IngredientTags.name ilike "%$name%" }
+            .where { IngredientTags.name ilike "%${name.uppercase()}%" }
             .limit(limit)
             .map { it.toIngredientTag() }
     }
