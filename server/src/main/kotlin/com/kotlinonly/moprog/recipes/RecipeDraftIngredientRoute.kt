@@ -15,6 +15,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -82,6 +83,10 @@ fun Route.recipeDraftIngredientRoute() {
                 if(newId.value < 1) return@post call.respondJson(HttpStatusCode.InternalServerError, "Database error")
 
                 call.respond(IngredientsRepository.findAllByRecipeId(id))
+            }
+
+            delete {
+                TODO()
             }
         }
     }

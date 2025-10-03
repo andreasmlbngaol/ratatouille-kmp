@@ -72,6 +72,19 @@ fun Route.recipeDraftBaseRoute() {
                 call.respond(HttpStatusCode.OK)
             }
 
+            delete {
+                val userId = call.principal<JWTPrincipal>()!!.userId
+                val id = call.parameters["id"]?.toLongOrNull()
+                    ?: return@delete call.respondJson(HttpStatusCode.BadRequest, "Invalid id")
+                if (!RecipesRepository.existByIdAndAuthorId(id, userId))
+                    return@delete call.respondJson(HttpStatusCode.NotFound, "Recipe not found")
+
+                if(RecipesRepository.deleteById(id) < 1)
+                    return@delete call.respondJson(HttpStatusCode.InternalServerError, "Database error")
+
+                call.respond(HttpStatusCode.OK)
+            }
+
             route("/images") {
                 post {
                     val userId = call.principal<JWTPrincipal>()!!.userId
