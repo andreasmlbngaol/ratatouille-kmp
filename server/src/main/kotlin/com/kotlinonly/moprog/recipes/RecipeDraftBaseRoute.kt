@@ -82,6 +82,15 @@ fun Route.recipeDraftBaseRoute() {
                 if(RecipesRepository.deleteById(id) < 1)
                     return@delete call.respondJson(HttpStatusCode.InternalServerError, "Database error")
 
+                RecipesImagesRepository.findAllByRecipeId(id).forEach { image ->
+                    val filePath = image.url.replace("$MY_DOMAIN/", "")
+                    val file = File(filePath)
+                    if (file.exists()) {
+                        if (!file.delete()) logE("/recipes/draft/images", "File delete failed: $filePath")
+                    }
+                    ImagesRepository.deleteById(image.id)
+                }
+
                 call.respond(HttpStatusCode.OK)
             }
 
