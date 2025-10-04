@@ -99,7 +99,7 @@ jobs:
               --restart unless-stopped \
               -v /root/credentials/ratatouille/serviceAccountKey.json:/app/serviceAccountKey.json:ro \
               -e DB_DRIVER="org.postgresql.Driver" \
-              -e DB_URL="jdbc:postgresql://localhost:5432/$DB_NAME" \
+              -e DB_URL="jdbc:postgresql://137.184.251.185:5432/$DB_NAME" \
               -e DB_USER="${{ secrets.POSTGRES_USER }}" \
               -e DB_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" \
               -e DB_NAME="$DB_NAME" \
