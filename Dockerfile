@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-jdk AS builder
+FROM eclipse-temurin:24-jdk AS builder
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew :server:shadowJar --no-daemon
 
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:24-jre
 
 WORKDIR /app
 
