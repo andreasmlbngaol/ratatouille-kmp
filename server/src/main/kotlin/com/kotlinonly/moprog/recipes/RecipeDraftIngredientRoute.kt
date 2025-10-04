@@ -3,7 +3,7 @@ package com.kotlinonly.moprog.recipes
 import com.kotlinonly.moprog.auth.config.userId
 import com.kotlinonly.moprog.core.utils.respondJson
 import com.kotlinonly.moprog.core.utils.uppercaseEachWord
-import com.kotlinonly.moprog.data.ingredient.CreateIngredientRequest
+import com.kotlinonly.moprog.data.ingredient.IngredientRequest
 import com.kotlinonly.moprog.data.ingredient.IngredientTag
 import com.kotlinonly.moprog.data.ingredient.IngredientTagRequest
 import com.kotlinonly.moprog.database.ingredient_tags.IngredientTagsRepository
@@ -15,6 +15,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -24,7 +25,12 @@ fun Route.recipeDraftIngredientRoute() {
         route("/tags") {
             get {
                 val payload = call.receive<IngredientTagRequest>()
-                call.respond(IngredientTagsRepository.findByNameILike(payload.name))
+                call.respond(
+                    IngredientTagsRepository.findByNameILikeWithLimit(
+                        payload.name,
+                        payload.limit ?: 4
+                    )
+                )
             }
 
             post {
@@ -55,6 +61,7 @@ fun Route.recipeDraftIngredientRoute() {
                 }
                 call.respond(IngredientsRepository.findAllByRecipeId(id))
             }
+
             post {
                 val userId = call.principal<JWTPrincipal>()!!.userId
                 val id = call.parameters["id"]?.toLongOrNull()
@@ -63,11 +70,23 @@ fun Route.recipeDraftIngredientRoute() {
                     if(!it) return@post call.respondJson(HttpStatusCode.NotFound, "Recipe with this id and author id not found")
                 }
 
-                val payload = call.receive<CreateIngredientRequest>()
-                if(payload.ingredients.isEmpty()) return@post call.respondJson(HttpStatusCode.BadRequest, "No ingredients provided")
+                val payload = call.receive<IngredientRequest>()
 
-                IngredientsRepository.saveAll(id, payload.ingredients)
-                call.respond(HttpStatusCode.Created)
+                val newId = IngredientsRepository.save(
+                    recipeId = id,
+                    tagId = payload.tagId,
+                    amount = payload.amount,
+                    unit = payload.unit,
+                    alternative = payload.alternative
+                )
+
+                if(newId.value < 1) return@post call.respondJson(HttpStatusCode.InternalServerError, "Database error")
+
+                call.respond(IngredientsRepository.findAllByRecipeId(id))
+            }
+
+            delete {
+                TODO()
             }
         }
     }

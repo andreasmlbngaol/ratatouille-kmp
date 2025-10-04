@@ -23,6 +23,8 @@ object RecipesImagesRepository {
             .deleteWhere { RecipesImages.imageId eq imageId }
     }
 
+
+
     fun findFirstByRecipeId(recipeId: Long) = transaction {
         (RecipesImages innerJoin Images)
             .select(Images.url)

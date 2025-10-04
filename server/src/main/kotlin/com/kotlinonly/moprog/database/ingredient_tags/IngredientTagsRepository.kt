@@ -6,10 +6,14 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object IngredientTagsRepository {
-    fun findByNameILike(name: String) = transaction {
+    fun findByNameILikeWithLimit(
+        name: String,
+        limit: Int
+    ) = transaction {
         IngredientTags
             .selectAll()
-            .where { IngredientTags.name ilike "%$name%" }
+            .where { IngredientTags.name ilike "%${name.uppercase()}%" }
+            .limit(limit)
             .map { it.toIngredientTag() }
     }
 

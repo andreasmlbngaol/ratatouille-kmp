@@ -45,5 +45,13 @@ fun Route.myRoute() {
                 call.respond(user)
             }
         }
+
+        patch("/email-verified") {
+            val userId = call.principal<JWTPrincipal>()!!.userId
+
+            UsersRepository.findById(userId) ?: return@patch call.respondJson(HttpStatusCode.NotFound, "User not found")
+            UsersRepository.updateEmailVerified(userId, true)
+            call.respond(HttpStatusCode.OK)
+        }
     }
 }

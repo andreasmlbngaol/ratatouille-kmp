@@ -37,6 +37,12 @@ object UsersRepository {
         }
     }
 
+    fun updateEmailVerified(id: String, isEmailVerified: Boolean) = transaction {
+        Users.updateWithTimestamps({ Users.id eq id }) {
+            it[Users.isEmailVerified] = isEmailVerified
+        }
+    }
+
     fun save(user: User) = transaction {
         Users.insertWithTimestamps {
             it[id] = user.id

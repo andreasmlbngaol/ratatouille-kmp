@@ -8,8 +8,10 @@ import com.kotlinonly.moprog.database.utils.insertWithTimestamps
 import com.kotlinonly.moprog.database.users.Users
 import com.kotlinonly.moprog.database.utils.ilike
 import com.kotlinonly.moprog.database.utils.updateWithTimestamps
+import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -142,5 +144,10 @@ object RecipesRepository {
         }
 
         return@transaction stmt.count()
+    }
+
+    fun deleteById(id: Long) = transaction {
+        Recipes
+            .deleteWhere { Recipes.id eq id }
     }
 }

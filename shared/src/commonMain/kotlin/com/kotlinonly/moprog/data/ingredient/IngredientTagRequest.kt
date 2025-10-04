@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class IngredientTagRequest(
-    val name: String
+    val name: String,
+    val limit: Int? = null
 )
