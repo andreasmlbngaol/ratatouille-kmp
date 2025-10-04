@@ -26,6 +26,16 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -87,6 +97,7 @@ jobs:
               --name ratatouille-$IMAGE_TAG \
               -p "${PORT}" \
               --restart unless-stopped \
+              -v /root/credentials/ratatouille/serviceAccountKey.json:/app/serviceAccountKey.json:ro \
               -e DB_DRIVER="org.postgresql.Driver" \
               -e DB_URL="jdbc:postgresql://localhost:5432/$DB_NAME" \
               -e DB_USER="${{ secrets.POSTGRES_USER }}" \
