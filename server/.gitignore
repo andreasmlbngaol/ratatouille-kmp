@@ -1,4 +1,3 @@
-src/main/resources/application.conf
 src/main/resources/application-backup.conf
 src/main/resources/application-prod.conf
 src/main/resources/application-dev.conf
