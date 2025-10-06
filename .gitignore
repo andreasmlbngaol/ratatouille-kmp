@@ -20,3 +20,4 @@ serviceAccountKey.json
 uploads
 .env.development
 .env.master
+.env
