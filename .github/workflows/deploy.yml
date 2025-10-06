@@ -96,7 +96,7 @@ jobs:
             docker run -d \
               --name ratatouille-$IMAGE_TAG \
               -p "${PORT}" \
-              --restart unless-stopped \
+              --restart always \
               -v /root/credentials/ratatouille/serviceAccountKey.json:/app/serviceAccountKey.json:ro \
               -e DB_DRIVER="org.postgresql.Driver" \
               -e DB_URL="jdbc:postgresql://137.184.251.185:5432/$DB_NAME" \
