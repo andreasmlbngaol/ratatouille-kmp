@@ -35,7 +35,7 @@ fun Route.myRoute() {
             val payload = call.receive<UpdateUserNameRequest>()
 
             UsersRepository.updateName(userId, payload.name).let {
-                if(it < 1) return@patch call.respondJson(
+                if(!it) return@patch call.respondJson(
                     HttpStatusCode.InternalServerError,
                     "Database error"
                 )

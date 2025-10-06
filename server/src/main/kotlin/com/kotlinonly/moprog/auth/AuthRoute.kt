@@ -9,7 +9,6 @@ import com.kotlinonly.moprog.data.auth.LoginRequest
 import com.kotlinonly.moprog.data.auth.LoginResponse
 import com.kotlinonly.moprog.data.auth.RefreshTokenRequest
 import com.kotlinonly.moprog.data.auth.RefreshTokenResponse
-import com.kotlinonly.moprog.data.auth.User
 import com.kotlinonly.moprog.data.core.logE
 import com.kotlinonly.moprog.database.users.UsersRepository
 import io.ktor.http.HttpStatusCode
@@ -47,7 +46,7 @@ fun Route.authRoute() {
             val payload = call.receive<LoginRequest>()
 
             val idToken = payload.idToken
-            val method = payload.method
+            val authMethod = payload.method
 
             val decoded = try {
                 FirebaseAuth.getInstance().verifyIdToken(idToken)
@@ -61,17 +60,15 @@ fun Route.authRoute() {
             val user = UsersRepository.findById(uid) ?: run {
                 logE("authRoute/login", "User with ID $uid not found, creating new user.")
 
-                User(
-                    id = uid,
-                    email = decoded.email ?: "",
-                    name = decoded.name ?: "",
-                    profilePictureUrl = decoded.picture,
-                    coverPictureUrl = null,
-                    isEmailVerified = decoded.isEmailVerified,
-//                    isEmailVerified = true, // Firebase email selalu verified karena gak jelas ini flutter
-                    method = method,
+                UsersRepository.save(uid) {
+                    email = decoded.email ?: ""
+                    name = decoded.name ?: ""
+                    profilePictureUrl = decoded.picture
+                    coverPictureUrl = null
+                    isEmailVerified = decoded.isEmailVerified
+                    method = authMethod
                     bio = null
-                ).also { UsersRepository.save(it) }
+                }
             }
 
             val accessToken = JwtConfig.generateAccessToken(user)
@@ -92,7 +89,7 @@ fun Route.authRoute() {
             val payload = call.receive<CheckEmailRequest>()
 
             val email = payload.email
-            if(UsersRepository.existByEmail(email)) return@post call.respondJson(HttpStatusCode.Conflict, "Email already used")
+            if(UsersRepository.existsByEmail(email)) return@post call.respondJson(HttpStatusCode.Conflict, "Email already used")
 
             call.respond(HttpStatusCode.OK)
         }
