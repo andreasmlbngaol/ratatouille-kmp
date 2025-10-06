@@ -34,7 +34,9 @@ abstract class Repository<
     }
 
     fun save(id: ID, block: E.() -> Unit) = transaction {
-        entityClass.new(id, block).toDomain()
+        val test = entityClass.new(id, block)
+        println(test)
+        test.toDomain()
     }
 
     fun update(id: ID, block: E.() -> Unit) = transaction {
