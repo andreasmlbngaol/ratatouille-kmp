@@ -19,4 +19,13 @@ open class BaseEntityClass<
             init()
         }
     }
+
+    override fun new(id: ID?, init: E.() -> Unit): E {
+        return super.new {
+            val now = Clock.System.now().toLocalDateTime(TimeZone.of("Asia/Jakarta"))
+            createdAt = now
+            updatedAt = now
+            init()
+        }
+    }
 }

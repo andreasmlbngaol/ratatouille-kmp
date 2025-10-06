@@ -4,6 +4,7 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
+@Suppress("unused")
 abstract class Repository<
         ID: Comparable<ID>,
         E: BaseEntity<ID>,
@@ -12,6 +13,11 @@ abstract class Repository<
     protected abstract fun E.toDomain(): D
 
     fun findAll(): List<D> = transaction {
+
+    fun save(id: ID, block: E.() -> Unit) = transaction {
+        entityClass.new(id, block).toDomain()
+    }
+
         entityClass.all().map { it.toDomain() }
     }
 
@@ -25,10 +31,6 @@ abstract class Repository<
 
     fun save(block: E.() -> Unit) = transaction {
         entityClass.new(block).toDomain()
-    }
-
-    fun save(id: ID, block: E.() -> Unit) = transaction {
-        entityClass.new(id, block).toDomain()
     }
 
     fun update(id: ID, block: E.() -> Unit) = transaction {
