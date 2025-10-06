@@ -33,6 +33,10 @@ abstract class Repository<
         entityClass.new(block).toDomain()
     }
 
+    fun save(id: ID, block: E.() -> Unit) = transaction {
+        entityClass.new(id, block).toDomain()
+    }
+
     fun update(id: ID, block: E.() -> Unit) = transaction {
         entityClass.findById(id)
             ?.apply(block)
